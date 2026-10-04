@@ -6,21 +6,21 @@
 <title>Mi semana</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap">
 <style>
-:root{--bg:#EEF3F5;--card:#fff;--ink:#23303B;--mute:#6B7A86;--acc:#3F7C85;--acc2:#E4F0F1;--ok:#6FA37E;--warm:#F6E3B4;--plum:#7A5C8E;--line:#D9E2E7;
+:root{--bg:#F1EEF8;--card:#fff;--ink:#2F2A45;--mute:#75708C;--acc:#5B6BC0;--acc2:#E6E8F8;--ok:#4F9B7A;--warm:#FBE6D6;--plum:#8E64A8;--line:#DDD9EC;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161D22;--card:#202A31;--ink:#E7EEF2;--mute:#9AABB6;--acc:#76B4BD;--acc2:#27393D;--ok:#86BF95;--warm:#4A412A;--plum:#B79AC9;--line:#33414A}}
-:root[data-theme="dark"]{--bg:#161D22;--card:#202A31;--ink:#E7EEF2;--mute:#9AABB6;--acc:#76B4BD;--acc2:#27393D;--ok:#86BF95;--warm:#4A412A;--plum:#B79AC9;--line:#33414A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1B1930;--card:#262341;--ink:#EDEBFA;--mute:#A9A5C6;--acc:#A3AEF0;--acc2:#312F55;--ok:#8ED1B0;--warm:#4B3A36;--plum:#CBA6E0;--line:#3A3760}}
+:root[data-theme="dark"]{--bg:#1B1930;--card:#262341;--ink:#EDEBFA;--mute:#A9A5C6;--acc:#A3AEF0;--acc2:#312F55;--ok:#8ED1B0;--warm:#4B3A36;--plum:#CBA6E0;--line:#3A3760}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.45}
+body{margin:0;background:linear-gradient(180deg,var(--acc2) 0,var(--bg) 280px) no-repeat var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.45}
 main{max-width:520px;margin:0 auto;padding:18px 16px 40px}
-h1{font-size:28px;font-weight:800;margin:4px 0 2px}
+h1{font-size:32px;font-weight:800;margin:4px 0 2px}
 .sub{color:var(--mute);margin:0 0 14px}
 .bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
 .barl{font-size:13px;color:var(--mute);margin:6px 0 16px}
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px}
-.day{background:var(--card);border:2px solid transparent;border-radius:14px;padding:8px 0;text-align:center;font:inherit;color:var(--ink);cursor:pointer}
+.day{background:var(--card);box-shadow:0 4px 12px rgba(80,70,140,.08);border:2px solid transparent;border-radius:18px;padding:8px 0;text-align:center;font:inherit;color:var(--ink);cursor:pointer}
 .day small{display:block;color:var(--mute);font-size:11px}
 .day b{font-size:17px}
 .day em{display:block;font-style:normal;font-size:10px;color:var(--mute);min-height:14px}
@@ -30,13 +30,13 @@ h1{font-size:28px;font-weight:800;margin:4px 0 2px}
 .banner button{flex:none}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
 h2{font-size:18px;margin:0}
-button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:9px 13px;background:var(--acc);color:#fff;font-weight:600}
+button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:10px 16px;background:var(--acc);color:#fff;font-weight:600}
 button.ghost{background:transparent;color:var(--mute);padding:6px 8px}
 button.soft{background:var(--acc2);color:var(--acc)}
 button.plum.on{background:var(--plum);color:#fff}
 button.plum{background:transparent;border:2px solid var(--plum);color:var(--plum)}
 :focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.task{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:16px;padding:12px;margin-bottom:8px}
+.task{box-shadow:0 6px 18px rgba(80,70,140,.09);display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:22px;padding:14px;margin-bottom:10px}
 .chk{width:30px;height:30px;flex:none;border-radius:50%;border:2.5px solid var(--acc);background:transparent;padding:0;color:#fff;font-size:17px;line-height:1}
 .task.done .chk{background:var(--ok);border-color:var(--ok)}
 .task.done .tt{text-decoration:line-through;color:var(--mute)}
@@ -45,7 +45,7 @@ button.plum{background:transparent;border:2px solid var(--plum);color:var(--plum
 .acts{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end}
 .empty{color:var(--mute);text-align:center;padding:22px 8px}
 .note{background:var(--acc2);color:var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:14px}
-.add{background:var(--card);border-radius:18px;padding:14px;margin-top:14px;display:grid;gap:10px}
+.add{background:var(--card);box-shadow:0 6px 18px rgba(80,70,140,.09);border-radius:26px;padding:18px;margin-top:14px;display:grid;gap:10px}
 .add input,.add select{font:inherit;width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 label{font-size:12.5px;color:var(--mute);display:block;margin-bottom:3px}
@@ -56,7 +56,7 @@ label{font-size:12.5px;color:var(--mute);display:block;margin-bottom:3px}
 <body>
 <main>
   <h1>Mi semana</h1>
-  <p class="sub">Poquito a poquito. Sin horas, solo un límite.</p>
+  <p class="sub" id="sb"></p>
   <div class="bar"><i id="pb"></i></div>
   <div class="barl" id="pl"></div>
   <div class="week" id="week"></div>
@@ -109,6 +109,7 @@ function render(){
   $('hv').className='plum'+(heavy?' on':'');
   var h='';
   if(heavy)h+='<div class="note">Día pesado: solo la primera tarea. Con esa, el día ya cuenta.'+(hidden?' ('+hidden+' guardadas para después)':'')+'</div>';
+  if(all.length&&all.every(function(t){return t.done}))h+='<div class="note">Listo por hoy. Descansa, te lo ganaste 💜</div>';
   if(!shown.length)h+='<div class="empty">Nada para este día. Agrega una cosita pequeña.</div>';
   shown.forEach(function(t){
     var m=[t.kind];if(t.lim)m.push(t.lim);if(t.r)m.push('aviso '+t.r);if(t.c)m.push('pasó de antes');
@@ -135,6 +136,7 @@ function ban(t){$('ban').innerHTML='<div class="banner"><span>Recordatorio: <b>'
   try{if(navigator.vibrate)navigator.vibrate(200);if(Notification.permission==='granted')new Notification('Recordatorio',{body:t.t})}catch(e){}}
 setInterval(function(){var d=new Date(),hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2),k=iso(d);
   S.tasks.forEach(function(t){if(!t.done&&t.r&&t.d===k&&t.r<=hm&&t.n!==k){t.n=k;save();ban(t)}})},15000);
+var hr=now.getHours();$('sb').textContent=(hr<12?'Buenos días':hr<19?'Buenas tardes':'Buenas noches')+'. Hoy solo lo que puedas, poquito a poquito.';
 render();
 })();
 </script>
