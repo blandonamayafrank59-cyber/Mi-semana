@@ -50,6 +50,13 @@ button.plum{background:transparent;border:2px solid var(--plum);color:var(--plum
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 label{font-size:12.5px;color:var(--mute);display:block;margin-bottom:3px}
 .foot{font-size:12.5px;color:var(--mute);margin-top:18px;text-align:center}
+.faces{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.faces button{background:var(--bg);color:var(--ink);font-size:28px;padding:10px 0;border-radius:18px;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:2px}
+.faces button small{font-size:11px;color:var(--mute);font-weight:600}
+.faces button.on{border-color:var(--acc);background:var(--acc2)}
+.spark{display:flex;gap:6px;align-items:flex-end;margin-top:12px}
+.spark div{flex:1;text-align:center;font-size:12px;color:var(--mute);line-height:1.3}
+.spark i{display:block;background:var(--acc);border-radius:8px 8px 4px 4px;margin-bottom:4px;opacity:.85}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
@@ -66,7 +73,15 @@ label{font-size:12.5px;color:var(--mute);display:block;margin-bottom:3px}
     <button class="plum" id="hv">Día pesado</button>
   </div>
   <div id="list"></div>
-  <div class="add">
+  <div class="add" id="mi">
+    <h2>Mi día</h2>
+    <div><label>¿Cómo me siento hoy?</label><div class="faces" id="fc"></div><div id="tip"></div></div>
+    <div><label for="sp">Pasos de hoy (míralos en la app de salud de tu celular)</label>
+      <div class="row"><input id="sp" type="number" min="0" inputmode="numeric" placeholder="Ej: 1500"><button id="ss">Guardar</button></div>
+      <div id="sm"></div>
+      <div class="spark" id="sk"></div></div>
+  </div>
+  <div class="add" style="margin-top:14px">
     <div><label for="nt">Nueva tarea</label><input id="nt" placeholder="Ej: lavar la ropa y sacarla a secar" maxlength="80"></div>
     <div class="row">
       <div><label for="nl">Debe estar lista</label>
@@ -90,7 +105,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 var now=new Date(),today=iso(now),NM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
 var days=[];for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push({k:iso(d),n:d.getDate(),w:NM[d.getDay()]})}
-load();
+load();S.mood=S.mood||{};S.steps=S.steps||{};
 S.tasks.forEach(function(t){if(!t.done&&t.d<today){t.d=today;t.c=1}});
 sel=today;if(days.every(function(x){return x.k!==today}))sel=days[0].k;
 save();
@@ -136,8 +151,27 @@ function ban(t){$('ban').innerHTML='<div class="banner"><span>Recordatorio: <b>'
   try{if(navigator.vibrate)navigator.vibrate(200);if(Notification.permission==='granted')new Notification('Recordatorio',{body:t.t})}catch(e){}}
 setInterval(function(){var d=new Date(),hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2),k=iso(d);
   S.tasks.forEach(function(t){if(!t.done&&t.r&&t.d===k&&t.r<=hm&&t.n!==k){t.n=k;save();ban(t)}})},15000);
+var F=[{k:1,e:'😞',l:'Mal'},{k:2,e:'😐',l:'Regular'},{k:3,e:'🙂',l:'Mejor'},{k:4,e:'😄',l:'Con ánimo'}];
+var T={1:['Hoy puede ser un día de lo mínimo: tomar agua, comer algo y una sola tarea chiquita. Sentirte mal hoy no borra lo que has avanzado.','Hoy toca ir suave. Respira lento tres veces y haz solo lo primero de tu lista.'],
+2:['Un día regular también es un día. Prueba con una tarea de 2 minutos y mira cómo te sientes después.','Ni bien ni mal: así también se avanza. Toma agua y estírate un ratito si puedes.'],
+3:['¡Qué bueno! Aprovecha para hacer algo que te guste, sin exigirte de más.','Notar que estás mejor es un logro. Recuerda cómo se siente este día para los días difíciles.'],
+4:['¡Qué lindo! Disfruta la energía sin pasarte: haz algo que te cueste y descansa después.','Con ánimo es buen momento para ordenar un rinconcito o caminar un poquito. Poquito a poquito.']};
+function renderDia(){
+  var m=S.mood[today];
+  $('fc').innerHTML=F.map(function(f){return '<button data-f="'+f.k+'" class="'+(m===f.k?'on':'')+'"><span>'+f.e+'</span><small>'+f.l+'</small></button>'}).join('');
+  var tip='';if(m){tip=T[m][now.getDate()%2];if(m===1)tip+=' Si se siente demasiado fuerte, no tienes que cargarlo en soledad: habla hoy con alguien de confianza o con una línea de ayuda de tu país.'}
+  $('tip').innerHTML=tip?'<div class="note">'+esc(tip)+'</div>':'';
+  if(S.steps[today]!=null&&document.activeElement!==$('sp'))$('sp').value=S.steps[today];
+  var mx=Math.max.apply(null,days.map(function(x){return S.steps[x.k]||0}).concat(1));
+  $('sk').innerHTML=days.map(function(x){var v=S.steps[x.k]||0,mm=S.mood[x.k];return '<div><i style="height:'+Math.max(4,v/mx*50)+'px"></i>'+(mm?F[mm-1].e:'·')+'<br>'+x.w[0]+'</div>'}).join('');
+}
+$('fc').onclick=function(e){var b=e.target.closest('button');if(!b)return;S.mood[today]=+b.dataset.f;save();renderDia()};
+$('ss').onclick=function(){var v=parseInt($('sp').value,10);if(isNaN(v)||v<0)return;S.steps[today]=v;save();
+  var prev=null;Object.keys(S.steps).sort().forEach(function(k){if(k<today&&S.steps[k]>0)prev=S.steps[k]});
+  var msg=prev===null?'Gracias por anotarlo. Así podrás ver cómo vas avanzando.':v>prev?'Hoy caminaste más que la última vez que anotaste. Un pasito más también es avanzar 💜':'Hoy fue un día más tranquilo, y está bien. Cada día cuenta distinto.';
+  $('sm').innerHTML='<div class="note">'+msg+'</div>';renderDia()};
 var hr=now.getHours();$('sb').textContent=(hr<12?'Buenos días':hr<19?'Buenas tardes':'Buenas noches')+'. Hoy solo lo que puedas, poquito a poquito.';
-render();
+renderDia();render();
 })();
 </script>
 </body>
