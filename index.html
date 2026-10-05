@@ -57,6 +57,7 @@ label{font-size:12.5px;color:var(--mute);display:block;margin-bottom:3px}
 .spark{display:flex;gap:6px;align-items:flex-end;margin-top:12px}
 .spark div{flex:1;text-align:center;font-size:12px;color:var(--mute);line-height:1.3}
 .spark i{display:block;background:var(--acc);border-radius:8px 8px 4px 4px;margin-bottom:4px;opacity:.85}
+.log .task.done .tt{text-decoration:none;color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
@@ -80,6 +81,11 @@ label{font-size:12.5px;color:var(--mute);display:block;margin-bottom:3px}
       <div class="row"><input id="sp" type="number" min="0" inputmode="numeric" placeholder="Ej: 1500"><button id="ss">Guardar</button></div>
       <div id="sm"></div>
       <div class="spark" id="sk"></div></div>
+  </div>
+  <div class="add log" id="hoy" style="margin-top:14px">
+    <div class="top"><h2>Lo que hice hoy</h2><button class="plum" id="rs">Hoy descansé</button></div>
+    <div id="hl"></div>
+    <div class="row" style="grid-template-columns:1fr auto"><input id="ex" maxlength="80" placeholder="Algo que hice de más ⭐"><button id="ea">⭐</button></div>
   </div>
   <div class="add" style="margin-top:14px">
     <div><label for="nt">Nueva tarea</label><input id="nt" placeholder="Ej: lavar la ropa y sacarla a secar" maxlength="80"></div>
@@ -105,7 +111,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 var now=new Date(),today=iso(now),NM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
 var days=[];for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push({k:iso(d),n:d.getDate(),w:NM[d.getDay()]})}
-load();S.mood=S.mood||{};S.steps=S.steps||{};
+load();S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
 S.tasks.forEach(function(t){if(!t.done&&t.d<today){t.d=today;t.c=1}});
 sel=today;if(days.every(function(x){return x.k!==today}))sel=days[0].k;
 save();
@@ -129,7 +135,7 @@ function render(){
   shown.forEach(function(t){
     var m=[t.kind];if(t.lim)m.push(t.lim);if(t.r)m.push('aviso '+t.r);if(t.c)m.push('pasó de antes');
     h+='<div class="task'+(t.done?' done':'')+'"><button class="chk" data-a="c" data-i="'+t.id+'" aria-label="Marcar hecha">'+(t.done?'✓':'')+'</button><div><div class="tt">'+esc(t.t)+'</div><div class="meta">'+esc(m.join(' · '))+'</div></div><div class="acts">'+(t.done?'':'<button class="ghost" data-a="m" data-i="'+t.id+'">Pasar a mañana</button>')+'<button class="ghost" data-a="x" data-i="'+t.id+'" aria-label="Borrar">Borrar</button></div></div>'});
-  $('list').innerHTML=h;
+  $('list').innerHTML=h;renderHoy();
 }
 function nextDay(k){var i=days.findIndex(function(x){return x.k===k});return i>-1&&i<6?days[i+1].k:null}
 document.addEventListener('click',function(e){
@@ -170,6 +176,19 @@ $('ss').onclick=function(){var v=parseInt($('sp').value,10);if(isNaN(v)||v<0)ret
   var prev=null;Object.keys(S.steps).sort().forEach(function(k){if(k<today&&S.steps[k]>0)prev=S.steps[k]});
   var msg=prev===null?'Gracias por anotarlo. Así podrás ver cómo vas avanzando.':v>prev?'Hoy caminaste más que la última vez que anotaste. Un pasito más también es avanzar 💜':'Hoy fue un día más tranquilo, y está bien. Cada día cuenta distinto.';
   $('sm').innerHTML='<div class="note">'+msg+'</div>';renderDia()};
+function renderHoy(){
+  var done=S.tasks.filter(function(t){return t.done&&t.d===today}),ex=S.log[today]||[],h='',n=done.length+ex.length;
+  if(S.rest[today])h+='<div class="note">Hoy descansaste. Descansar también es cuidarte 💜</div>';
+  done.forEach(function(t){h+='<div class="task done"><span style="font-size:22px">✅</span><div class="tt">'+esc(t.t)+'</div></div>'});
+  ex.forEach(function(x){h+='<div class="task done"><span style="font-size:22px">⭐</span><div class="tt">'+esc(x.t)+'</div><div class="acts"><button class="ghost" data-xd="'+x.id+'">Borrar</button></div></div>'});
+  if(!n&&!S.rest[today])h+='<div class="empty">Aquí aparece todo lo que hagas hoy, planeado o no.</div>';
+  if(n)h+='<div class="meta">Hoy llevas '+n+(n===1?' cosa':' cosas')+' 💜</div>';
+  $('hl').innerHTML=h;$('rs').className='plum'+(S.rest[today]?' on':'');
+}
+$('ea').onclick=function(){var v=$('ex').value.trim();if(!v)return;(S.log[today]=S.log[today]||[]).push({id:Date.now(),t:v});$('ex').value='';save();renderHoy()};
+$('ex').onkeydown=function(e){if(e.key==='Enter')$('ea').onclick()};
+$('rs').onclick=function(){S.rest[today]=!S.rest[today];save();renderHoy()};
+$('hl').onclick=function(e){var b=e.target.closest('button');if(!b||!b.dataset.xd)return;var id=+b.dataset.xd;S.log[today]=(S.log[today]||[]).filter(function(x){return x.id!==id});save();renderHoy()};
 var hr=now.getHours();$('sb').textContent=(hr<12?'Buenos días':hr<19?'Buenas tardes':'Buenas noches')+'. Hoy solo lo que puedas, poquito a poquito.';
 renderDia();render();
 })();
