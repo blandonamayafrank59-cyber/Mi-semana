@@ -391,11 +391,11 @@ function renderVis(){var h='<h2>Personalización visual 🎨</h2>';
   h+='<div><label>🎨 Colores</label><div class="row"><button class="soft sw'+(V.col.mode==='auto'?' on':'')+'" data-vm="auto">🌈 Automáticos</button><button class="soft sw'+(V.col.mode==='fija'?' on':'')+'" data-vm="fija">📌 Paleta fija</button></div>';
   h+='<button class="soft sw'+(V.col.rot&&V.col.mode==='auto'?' on':'')+'" data-vr="1" style="width:100%;margin-top:8px"'+(V.col.mode==='fija'?' disabled':'')+'>'+(V.col.rot?'✅ Rotación periódica activada':'Rotación periódica desactivada')+'</button>';
   h+='<div class="pals">'+LP.map(function(p,i){var c=pv(p);return '<button class="pl'+(V.col.mode==='fija'&&(V.col.pal|0)===i&&PV===null?' on':'')+'" data-vp="'+i+'" style="--c1:'+c.b1+';--c2:'+c.b2+'"><i></i><small>'+p[2]+' '+p[1]+'</small></button>'}).join('')+'</div>';
-  h+=PV!==null?'<div class="note" style="margin-top:10px">Vista previa: <b>'+LP[PV][2]+' '+LP[PV][1]+'</b></div><div class="row"><button data-vu="1">Usar esta paleta</button><button class="soft" data-vx="1">Cancelar</button></div>':'<p class="meta" style="margin:6px 0 0">Toca una paleta para verla antes de elegirla.</p>';
+  h+=PV!==null?'<div class="note" style="margin-top:10px">Vista previa: <b>'+LP[PV][2]+' '+LP[PV][1]+'</b></div><div class="row"><button data-vu="1">Usar esta paleta</button><button class="soft" data-vx="1">Cancelar</button></div>':'<p class="meta" style="margin:6px 0 0">Toca una paleta y se queda fija. Para que cambien solos, toca Automáticos.</p>';
   $('vis').innerHTML=h+'</div>'}
 $('vis').onclick=function(e){var b=e.target.closest('button');if(!b||b.disabled)return;var d=b.dataset;
   if(d.vs){if(d.vs!==TM)$('ct').click();return}
-  if(d.vp){PV=+d.vp;applyPal(LP[PV]);renderVis();return}
+  if(d.vp){V.col.mode='fija';V.col.pal=pi=+d.vp;PV=null;applyPal(LP[pi]);rotSet();save();renderVis();return}
   if(d.vx){PV=null;applyPal(LP[pi]);renderVis();return}
   if(d.vm){V.col.mode=d.vm;if(d.vm==='fija')V.col.pal=pi;PV=null;applyPal(LP[pi])}
   else if(d.vr)V.col.rot=!V.col.rot;
