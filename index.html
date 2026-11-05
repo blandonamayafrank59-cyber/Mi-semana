@@ -187,6 +187,9 @@ button:disabled{opacity:.45;cursor:default}
 .pals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .pl{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line);padding:8px 4px;border-radius:18px;font-size:13px;display:grid;gap:5px;justify-items:center}
 .pl i{width:100%;height:22px;border-radius:99px;background:linear-gradient(90deg,var(--c1),var(--c2))}.pl.on{box-shadow:inset 0 0 0 3px var(--b2)}
+@keyframes artIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1) rotate(0)}50%{transform:translateY(-5px) scale(1.035) rotate(.6deg)}}
+.hero .art{transform-origin:75% 100%;animation:artIn .9s cubic-bezier(.3,1.2,.5,1) both,breathe 6s ease-in-out .9s infinite;will-change:transform}
 </style>
 </head>
 <body>
@@ -378,12 +381,11 @@ function rnd(n,last){if(n<2)return 0;var i;do{i=Math.floor(Math.random()*n)}whil
 function setHero(i){var im=$('im-h');im.onerror=function(){im.onerror=null;im.src='/hero'+(TM==='m'?'-m':'')+'.png'};im.src='/img/'+TM+(i+1)+'.webp'}
 function rotSet(){clearInterval(rotT);if(V.col.mode==='auto'&&V.col.rot)rotT=setInterval(function(){if(PV!==null||document.hidden)return;pi=(pi+1+rnd(5,-1))%6;applyPal(LP[pi])},20000)}
 (function(){var lc=-1,lp=-1;try{lc=parseInt(localStorage.getItem('miSemanaLastC'),10);lp=parseInt(localStorage.getItem('miSemanaLastP'),10);if(isNaN(lc))lc=-1;if(isNaN(lp))lp=-1}catch(e){}
-  chi=V.char.auto?rnd(6,lc):(V.char.fav|0);pi=V.col.mode==='fija'?(V.col.pal|0):rnd(6,lp);
+  chi=rnd(6,lc);pi=V.col.mode==='fija'?(V.col.pal|0):rnd(6,lp);
   try{localStorage.setItem('miSemanaLastC',chi);localStorage.setItem('miSemanaLastP',pi)}catch(e){}
   setHero(chi);applyPal(LP[pi]);rotSet()})();
 function renderVis(){var h='<h2>Personalización visual 🎨</h2>';
   h+='<div><label>Estilo</label><div class="row"><button class="soft tmb'+(TM==='f'?' on':'')+'" data-vs="f">🌸 Femenino</button><button class="soft tmb'+(TM==='m'?' on':'')+'" data-vs="m">💙 Masculino</button></div></div>';
-  h+='<div><label>🖼️ Personajes</label><button class="soft sw'+(V.char.auto?' on':'')+'" data-vc="1" style="width:100%">'+(V.char.auto?'✅ Cambian solos cada vez que entras':'Cambio automático desactivado')+'</button><div class="gal">'+CH[TM].map(function(n,i){return '<button class="th'+(!V.char.auto&&(V.char.fav|0)===i?' on':'')+'" data-vf="'+i+'" aria-label="'+n+'"><img src="/img/'+TM+(i+1)+'.webp" alt=""></button>'}).join('')+'</div><p class="meta" style="margin:6px 0 0">Toca una para dejarla como favorita.</p></div>';
   h+='<div><label>🎨 Colores</label><div class="row"><button class="soft sw'+(V.col.mode==='auto'?' on':'')+'" data-vm="auto">🌈 Automáticos</button><button class="soft sw'+(V.col.mode==='fija'?' on':'')+'" data-vm="fija">📌 Paleta fija</button></div>';
   h+='<button class="soft sw'+(V.col.rot&&V.col.mode==='auto'?' on':'')+'" data-vr="1" style="width:100%;margin-top:8px"'+(V.col.mode==='fija'?' disabled':'')+'>'+(V.col.rot?'✅ Rotación periódica activada':'Rotación periódica desactivada')+'</button>';
   h+='<div class="pals">'+LP.map(function(p,i){var c=pv(p);return '<button class="pl'+(V.col.mode==='fija'&&(V.col.pal|0)===i&&PV===null?' on':'')+'" data-vp="'+i+'" style="--c1:'+c.b1+';--c2:'+c.b2+'"><i></i><small>'+p[2]+' '+p[1]+'</small></button>'}).join('')+'</div>';
@@ -393,9 +395,7 @@ $('vis').onclick=function(e){var b=e.target.closest('button');if(!b||b.disabled)
   if(d.vs){if(d.vs!==TM)$('ct').click();return}
   if(d.vp){PV=+d.vp;applyPal(LP[PV]);renderVis();return}
   if(d.vx){PV=null;applyPal(LP[pi]);renderVis();return}
-  if(d.vc){V.char.auto=!V.char.auto;if(!V.char.auto)V.char.fav=chi}
-  else if(d.vf){V.char.auto=false;V.char.fav=chi=+d.vf;setHero(chi)}
-  else if(d.vm){V.col.mode=d.vm;if(d.vm==='fija')V.col.pal=pi;PV=null;applyPal(LP[pi])}
+  if(d.vm){V.col.mode=d.vm;if(d.vm==='fija')V.col.pal=pi;PV=null;applyPal(LP[pi])}
   else if(d.vr)V.col.rot=!V.col.rot;
   else if(d.vu){V.col.mode='fija';V.col.pal=pi=PV;PV=null;applyPal(LP[pi])}
   else return;
