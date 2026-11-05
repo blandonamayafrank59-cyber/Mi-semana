@@ -130,6 +130,13 @@ body.m{--ink:#1D2A5C;--mute:#6677A6;--lila:#5B7CFA;--lav:#A9BFFF;--rosa:#9CC4FF;
 .m .ring{background:conic-gradient(#6C8CFF calc(var(--p,0)*1%),#E4EBFF 0)}
 .m .c-dia{background:linear-gradient(135deg,#F6F9FF,#EAF0FF)}.m .c-vic{background:linear-gradient(135deg,#EAF2FF,#DDE6FF)}.m .c-new{background:linear-gradient(135deg,#E6F4FF,#E9EEFF)}
 .m .nv.on{background:#DCE6FF;color:#2F46B8}.m .soft{background:#E6EDFF;color:#2F46B8}.m #nav{box-shadow:0 10px 30px rgba(70,110,230,.35)}
+textarea{font:inherit;font-weight:700;width:100%;padding:13px 14px;border-radius:18px;border:2px solid #fff;background:#fffd;color:var(--ink);outline:0;box-shadow:inset 0 0 0 1.5px var(--line);resize:vertical}
+textarea:focus{box-shadow:inset 0 0 0 2px var(--lila),0 0 0 4px rgba(155,131,232,.22)}
+.c-rut{background:linear-gradient(135deg,#FFF4FB,#F1ECFF)}.m .c-rut{background:linear-gradient(135deg,#EEF4FF,#E3EAFF)}
+.rcard{background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:13px;margin-bottom:9px;box-shadow:0 4px 14px rgba(155,131,232,.12)}
+.rcard.done{background:linear-gradient(135deg,#FFF4CF,#FFE7F5)}.m .rcard.done{background:linear-gradient(135deg,#FFF6D6,#DCE8FF)}
+.chips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.chip{padding:10px 0;font-size:15px}
+.chip.on{background:linear-gradient(135deg,#F6B8E5,#9B83E8);color:#fff;box-shadow:0 6px 14px rgba(155,131,232,.3)}.m .chip.on{background:linear-gradient(135deg,#6C8CFF,#4A63E8)}
 </style>
 </head>
 <body>
@@ -157,6 +164,7 @@ body.m{--ink:#1D2A5C;--mute:#6677A6;--lila:#5B7CFA;--lav:#A9BFFF;--rosa:#9CC4FF;
   <div id="ban"></div>
   <div class="home"><div class="col">
     <div class="card"><div class="top"><h2 id="dt"></h2></div><div id="list"></div></div>
+    <div class="card c-rut"><div class="top"><h2>Mi rutina de hoy 🌷</h2><button class="soft" id="rg">Mis rutinas</button></div><div id="rl"></div></div>
     <div class="card c-dia fold"><h2 class="hd">Mi día 💜</h2>
       <div><label>¿Cómo me siento hoy?</label><div class="faces" id="fc"></div><div id="tip"></div></div>
       <div><label for="sp">👟 Pasos de hoy (míralos en la app de salud de tu celular)</label>
@@ -181,6 +189,12 @@ body.m{--ink:#1D2A5C;--mute:#6677A6;--lila:#5B7CFA;--lav:#A9BFFF;--rosa:#9CC4FF;
     <div class="card"><h2>Tareas de hoy</h2><p class="meta" id="th" style="margin:0"></p><div class="pb"><i id="tb"></i></div></div>
   </aside></div>
 </section>
+<section id="v-rut" hidden><div class="vt">Mis rutinas</div><button class="ghost" id="rbk">← Volver</button><div id="rlist"></div>
+<div class="card"><h2 id="rft">Nueva rutina 🌸</h2><div id="rmsg"></div>
+<div class="row s"><div><label for="rn">✏️ Nombre</label><input id="rn" maxlength="40" placeholder="Ej: Mañana en casa"></div><div style="width:84px"><label for="re">Emoji</label><input id="re" maxlength="4" placeholder="🌷" style="text-align:center"></div></div>
+<div><label>📅 ¿Qué días?</label><div class="chips" id="rdy"></div><button type="button" class="ghost" id="rdall">Todos los días</button></div>
+<div><label for="rst">🌱 Pasos (uno por línea, sin límite)</label><textarea id="rst" rows="6" placeholder="Tomar agua&#10;Tender la cama&#10;Barrer la sala"></textarea></div>
+<button id="rsv">Guardar rutina</button><button class="ghost" id="rcn" hidden>Cancelar edición</button></div></section>
 <section id="v-cal" hidden><div class="vt">Calendario</div><div class="card"><h2 id="cm"></h2><div class="cg" id="cg"></div></div><div class="card" id="cdet" style="margin-top:14px"></div></section>
 <section id="v-est" hidden><div class="vt">Estadísticas</div><div class="sts" id="est"></div><p class="foot" style="margin-top:14px">Cada número es un pasito que diste 💜</p></section>
 <section id="v-set" hidden><div class="vt">Ajustes</div><div class="card" style="margin-bottom:14px"><h2>Mi cuenta</h2><p class="meta" id="acc"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="lo">Cerrar sesión</button><button class="soft" id="ct">Cambiar estilo</button></div></div><div class="card"><h2>Avisos</h2><p class="meta">Los recordatorios suenan mientras tengas la app abierta.</p><button id="nf">Activar avisos del celular</button></div>
@@ -197,7 +211,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 var now=new Date(),today=iso(now),NM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
 var days=[];for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push({k:iso(d),n:d.getDate(),w:NM[d.getDay()]})}
-load();S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
+load();S.rut=S.rut||[];S.rdone=S.rdone||{};S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
 S.tasks.forEach(function(t){if(!t.done&&t.d<today){t.d=today;t.c=1}});
 sel=today;if(days.every(function(x){return x.k!==today}))sel=days[0].k;
 save();
@@ -262,10 +276,50 @@ $('ss').onclick=function(){var v=parseInt($('sp').value,10);if(isNaN(v)||v<0)ret
   var prev=null;Object.keys(S.steps).sort().forEach(function(k){if(k<today&&S.steps[k]>0)prev=S.steps[k]});
   var msg=prev===null?'Gracias por anotarlo. Así podrás ver cómo vas avanzando.':v>prev?'Hoy caminaste más que la última vez que anotaste. Un pasito más también es avanzar 💜':'Hoy fue un día más tranquilo, y está bien. Cada día cuenta distinto.';
   $('sm').innerHTML='<div class="note">'+msg+'</div>';renderDia()};
+var DL=[[1,'L'],[2,'M'],[3,'M'],[4,'J'],[5,'V'],[6,'S'],[0,'D']],RD=[],RE=null;
+function rutHoy(){return S.rut.filter(function(r){return r.days.indexOf(now.getDay())>-1})}
+function rutFull(r,k){var d=S.rdone[k]||{};return r.steps.length>0&&r.steps.every(function(s){return d[s.id]})}
+function rAny(k){var d=S.rdone[k];return !!d&&Object.keys(d).some(function(i){return d[i]})}
+function renderRut(){var L=rutHoy(),d=S.rdone[today]||{},h='';
+  if(!L.length)h='<div class="empty">Hoy no tienes rutinas. Crea una en "Mis rutinas".</div>';
+  else{if(L.length>1)h+='<button class="plum" id="rall" style="margin:0 0 10px">Hoy hice todo ✨</button>';
+    L.forEach(function(r){var n=r.steps.filter(function(s){return d[s.id]}).length;
+      h+='<div class="rcard'+(rutFull(r,today)?' done':'')+'"><div class="top"><div class="tt">'+esc(r.e)+' '+esc(r.n)+'</div><span class="meta">'+n+'/'+r.steps.length+'</span></div>';
+      r.steps.forEach(function(s){h+='<div class="task'+(d[s.id]?' done':'')+'" style="margin:8px 0 0;box-shadow:none"><button class="chk" data-rs="'+s.id+'" aria-label="Marcar paso">'+(d[s.id]?'✓':'')+'</button><div class="tt">'+esc(s.t)+'</div></div>'});
+      h+='<button class="soft" data-ra="'+r.id+'" style="margin-top:10px;width:100%">'+(rutFull(r,today)?'Desmarcar todo':'Hice todo ✨')+'</button></div>'})}
+  $('rl').innerHTML=h}
+$('rl').onclick=function(e){var b=e.target.closest('button');if(!b)return;var d=S.rdone[today]=S.rdone[today]||{};
+  if(b.dataset.rs)d[b.dataset.rs]=!d[b.dataset.rs];
+  else if(b.dataset.ra){var r=S.rut.filter(function(x){return String(x.id)===b.dataset.ra})[0];if(!r)return;var f=rutFull(r,today);r.steps.forEach(function(s){d[s.id]=!f})}
+  else if(b.id==='rall'){var L=rutHoy(),a=L.every(function(r){return rutFull(r,today)});L.forEach(function(r){r.steps.forEach(function(s){d[s.id]=!a})})}
+  else return;
+  save();renderRut();renderHoy()};
+function chips(){$('rdy').innerHTML=DL.map(function(x){return '<button type="button" class="soft chip'+(RD.indexOf(x[0])>-1?' on':'')+'" data-d="'+x[0]+'">'+x[1]+'</button>'}).join('')}
+function rList(){var h='';if(!S.rut.length)h='<div class="empty">Aún no tienes rutinas. Crea la primera aquí abajo.</div>';
+  S.rut.forEach(function(r){h+='<div class="card" style="margin-bottom:12px"><h2>'+esc(r.e)+' '+esc(r.n)+'</h2><p class="meta" style="margin:0">'+DL.filter(function(x){return r.days.indexOf(x[0])>-1}).map(function(x){return NM[x[0]]}).join(', ')+' · '+r.steps.length+(r.steps.length===1?' paso':' pasos')+'</p><div style="display:flex;gap:8px"><button class="soft" data-re="'+r.id+'">Editar</button><button class="ghost" data-rx="'+r.id+'">Borrar</button></div></div>'});
+  $('rlist').innerHTML=h}
+function rReset(){RE=null;RD=[];$('rn').value='';$('re').value='';$('rst').value='';$('rft').textContent='Nueva rutina 🌸';$('rcn').hidden=true;chips()}
+$('rdy').onclick=function(e){var b=e.target.closest('button');if(!b)return;var d=+b.dataset.d,i=RD.indexOf(d);if(i>-1)RD.splice(i,1);else RD.push(d);chips()};
+$('rdall').onclick=function(){RD=[1,2,3,4,5,6,0];chips()};
+$('rsv').onclick=function(){var n=$('rn').value.trim(),ls=$('rst').value.split('\n').map(function(x){return x.trim()}).filter(Boolean),m=$('rmsg');
+  function er(t){m.innerHTML='<div class="note">'+t+'</div>'}
+  if(!n)return er('Ponle un nombre a tu rutina.');if(!RD.length)return er('Elige al menos un día.');if(!ls.length)return er('Escribe al menos un paso.');
+  var old=RE?S.rut.filter(function(x){return x.id===RE})[0]:null,pv={};if(old)old.steps.forEach(function(s){pv[s.t]=s.id});
+  var st=ls.map(function(t,i){var id=pv[t]||Date.now()+i;delete pv[t];return{id:id,t:t}});
+  var o={id:old?old.id:Date.now(),n:n,e:$('re').value.trim()||'🌷',days:RD.slice(),steps:st};
+  if(old)S.rut[S.rut.indexOf(old)]=o;else S.rut.push(o);
+  save();rReset();m.innerHTML='<div class="note">¡Rutina guardada! 💜</div>';rList();renderRut();renderHoy()};
+$('rcn').onclick=function(){rReset();$('rmsg').innerHTML=''};
+$('rlist').onclick=function(e){var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.re){var r=S.rut.filter(function(x){return String(x.id)===b.dataset.re})[0];if(!r)return;RE=r.id;RD=r.days.slice();$('rn').value=r.n;$('re').value=r.e;$('rst').value=r.steps.map(function(s){return s.t}).join('\n');$('rft').textContent='Editar rutina ✏️';$('rcn').hidden=false;chips();$('rn').scrollIntoView({behavior:'smooth',block:'center'})}
+  if(b.dataset.rx){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Toca otra vez para borrar';return}
+    S.rut=S.rut.filter(function(x){return String(x.id)!==b.dataset.rx});save();rList();renderRut();renderHoy()}};
+$('rg').onclick=function(){show('rut')};$('rbk').onclick=function(){show('home')};
 function renderHoy(){extra();
   var done=S.tasks.filter(function(t){return t.done&&t.d===today}),ex=S.log[today]||[],h='',n=done.length+ex.length;
   if(S.rest[today])h+='<div class="note">Hoy descansaste. Descansar también es cuidarte 💜</div>';
   done.forEach(function(t){h+='<div class="task done"><span style="font-size:22px">✅</span><div class="tt">'+esc(t.t)+'</div></div>'});
+  rutHoy().forEach(function(r){if(rutFull(r,today)){h+='<div class="task done star"><span style="font-size:22px">🌷</span><div class="tt">Rutina completa: '+esc(r.n)+'</div></div>';n++}});
   ex.forEach(function(x){h+='<div class="task done star"><span style="font-size:22px">⭐</span><div class="tt">'+esc(x.t)+'</div><div class="acts"><button class="ghost" data-xd="'+x.id+'">Borrar</button></div></div>'});
   if(!n&&!S.rest[today])h+='<div class="empty">Aquí aparece todo lo que hagas hoy, planeado o no.</div>';
   if(n)h+='<div class="meta">Hoy llevas '+n+(n===1?' cosa':' cosas')+' 💜</div>';
@@ -279,7 +333,7 @@ var hr=now.getHours();$('sb').textContent=(hr<12?'☀️ Buenos días':hr<19?'�
 var view='home',cs=today,rz2=false,MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var TIPS=['No necesitas hacerlo todo hoy. Cada pequeño paso también cuenta.','Descansar también es avanzar.','Hoy basta con una cosita. Con una ya cuenta.','Tomar agua y respirar también es cuidarte.','Si hoy fue un día difícil, mañana puedes empezar de nuevo, sin culpa.','Compárate solo con tu ayer, y a tu propio ritmo.','Llegaste hasta aquí. Eso ya es mucho 💜'];
 function ind(k,t,h){var s='';if(t.length&&h===t.length)s+='✅';if((S.log[k]||[]).length)s+='⭐';if(S.rest[k])s+='🌙';if(S.mood[k])s+=F[S.mood[k]-1].e;return s||'·'}
-function active(k){return S.tasks.some(function(t){return t.d===k&&t.done})||(S.log[k]||[]).length>0||!!S.rest[k]}
+function active(k){return rAny(k)||S.tasks.some(function(t){return t.d===k&&t.done})||(S.log[k]||[]).length>0||!!S.rest[k]}
 function extra(){
   var wk=S.tasks.filter(function(t){return days.some(function(x){return x.k===t.d})}),wd=wk.filter(function(t){return t.done}).length,p=wk.length?Math.round(wd/wk.length*100):0;
   $('ring').style.setProperty('--p',p);$('rp').textContent=p+'%';
@@ -310,10 +364,11 @@ function renderEst(){
   Object.keys(S.mood).forEach(function(k){if(ml[S.mood[k]-1]!==undefined)ml[S.mood[k]-1]++});
   Object.keys(S.steps).forEach(function(k){if(S.steps[k]>0)sp.push(S.steps[k])});
   var avg=sp.length?Math.round(sp.reduce(function(a,b){return a+b},0)/sp.length):0;
+  var rc=0;Object.keys(S.rdone).forEach(function(k){S.rut.forEach(function(r){if(rutFull(r,k))rc++})});
   function c(e,n,l){return '<div class="st"><span>'+e+'</span><b>'+n+'</b><small>'+l+'</small></div>'}
-  $('est').innerHTML=c('✅',all,'tareas hechas')+c('⭐',ex,'pequeñas victorias extra')+c('🌙',rest,'días de descanso')+c('👟',avg||'—','pasos en promedio')+F.map(function(f,i){return c(f.e,ml[i],'días: '+f.l)}).join('');
+  $('est').innerHTML=c('✅',all,'tareas hechas')+c('⭐',ex,'pequeñas victorias extra')+c('🌷',rc,'rutinas completas')+c('🌙',rest,'días de descanso')+c('👟',avg||'—','pasos en promedio')+F.map(function(f,i){return c(f.e,ml[i],'días: '+f.l)}).join('');
 }
-function show(v){view=v;['home','cal','est','set'].forEach(function(n){$('v-'+n).hidden=(n!==v)});var bs=document.querySelectorAll('.nv');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);if(v==='cal')renderCal();if(v==='est')renderEst();window.scrollTo(0,0)}
+function show(v){view=v;['home','cal','est','set','rut'].forEach(function(n){$('v-'+n).hidden=(n!==v)});var bs=document.querySelectorAll('.nv');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);if(v==='cal')renderCal();if(v==='est')renderEst();if(v==='rut'){rList();chips()}window.scrollTo(0,0)}
 $('nav').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.v)show(b.dataset.v);if(b.id==='fab'){show('home');$('nt').closest('.fold').classList.remove('closed');$('nt').scrollIntoView({behavior:'smooth',block:'center'});$('nt').focus()}};
 $('cg').onclick=function(e){var b=e.target.closest('button');if(b&&b.dataset.c){cs=b.dataset.c;renderCal()}};
 $('rz').onclick=function(){if(!rz2){rz2=true;this.textContent='Toca otra vez para borrar todo';return}CTX.wipe(function(){location.reload()})};
@@ -321,7 +376,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('button');i
 document.addEventListener('click',function(e){var h=e.target.closest('.hd');if(h&&h.parentNode.classList.contains('fold'))h.parentNode.classList.toggle('closed')});
 var cards=document.querySelectorAll('#v-home .card,.weekrow'),ci;for(ci=0;ci<cards.length;ci++)cards[ci].classList.add('rv');
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{threshold:.08});for(ci=0;ci<cards.length;ci++)io.observe(cards[ci])}else{for(ci=0;ci<cards.length;ci++)cards[ci].classList.add('in')}
-renderDia();render();
+renderDia();render();renderRut();
 };
 </script>
 <script>
