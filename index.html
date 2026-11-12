@@ -190,6 +190,12 @@ button:disabled{opacity:.45;cursor:default}
 @keyframes artIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:none}}
 @keyframes breathe{0%,100%{transform:translateY(0) scale(1) rotate(0)}50%{transform:translateY(-5px) scale(1.035) rotate(.6deg)}}
 .hero .art{transform-origin:75% 100%;animation:artIn .9s cubic-bezier(.3,1.2,.5,1) both,breathe 6s ease-in-out .9s infinite;will-change:transform}
+#ring{position:fixed;inset:0;z-index:999;display:grid;place-items:center;padding:24px;background:linear-gradient(160deg,var(--g1),var(--g2) 55%,var(--g3));text-align:center}
+#ring[hidden]{display:none}#ring .rg{display:grid;gap:12px;width:min(420px,100%)}
+#ring .bell{font-size:72px;animation:wig .5s ease-in-out infinite}@keyframes wig{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+#ring h2{font-size:26px;color:var(--pd)}#ring p{font-size:20px;font-weight:800;margin:0}
+.srow{display:grid;gap:8px;background:var(--ps);border-radius:20px;padding:10px;margin-bottom:8px}
+.sl{display:grid;grid-template-columns:104px 1fr 44px;gap:6px}
 </style>
 </head>
 <body>
@@ -233,7 +239,7 @@ button:disabled{opacity:.45;cursor:default}
       <div class="row"><div><label for="nl">📅 Debe estar lista</label><select id="nl"><option value="">Sin límite</option><option value="antes del mediodía">Antes del mediodía</option><option value="antes de la tarde">Antes de la tarde</option><option value="antes de dormir">Antes de dormir</option></select></div>
         <div><label for="nk">🏠 Tipo</label><select id="nk"><option>Casa</option><option>Venta</option><option>Ejercicio</option><option>Distraerme</option></select></div></div>
       <div><label for="nr">🔔 Recordarme a las (opcional)</label><input id="nr" type="time"></div>
-      <div><label for="na">Tipo de aviso</label><select id="na"><option value="">🔔 Aviso normal</option><option value="1">⏰ Alarma (vibra fuerte y no se quita sola)</option></select></div>
+      <div><label for="na">Tipo de aviso</label><select id="na"></select></div>
       <div id="warn"></div><button id="ad">＋ Agregar tarea</button></div>
   </div>
   <aside class="side">
@@ -247,13 +253,13 @@ button:disabled{opacity:.45;cursor:default}
 <div class="card"><h2 id="rft">Nueva rutina 🌸</h2><div id="rmsg"></div>
 <div class="row s"><div><label for="rn">✏️ Nombre</label><input id="rn" maxlength="40" placeholder="Ej: Mañana en casa"></div><div style="width:84px"><label for="re">Emoji</label><input id="re" maxlength="4" placeholder="🌷" style="text-align:center"></div></div>
 <div><label>📅 ¿Qué días?</label><div class="chips" id="rdy"></div><button type="button" class="ghost" id="rdall">Todos los días</button></div>
-<div><label for="rst">🌱 Pasos (uno por línea, sin límite)</label><textarea id="rst" rows="6" placeholder="Tomar agua&#10;Tender la cama&#10;Barrer la sala"></textarea></div>
+<div><label>🌱 Pasos (cada uno con su hora y su alarma)</label><div id="rsl"></div><button type="button" class="ghost" id="rsa">＋ Agregar paso</button></div>
 <div><label for="rh">🔔 Avisarme a las (opcional)</label><input id="rh" type="time"></div>
-<div><label for="ra">Tipo de aviso</label><select id="ra"><option value="">🔔 Aviso normal</option><option value="1">⏰ Alarma (vibra fuerte y no se quita sola)</option></select></div>
+<div><label for="ra">Tipo de aviso</label><select id="ra"></select></div>
 <button id="rsv">Guardar rutina</button><button class="ghost" id="rcn" hidden>Cancelar edición</button></div></section>
 <section id="v-cal" hidden><div class="vt">Calendario</div><div class="card"><h2 id="cm"></h2><div class="cg" id="cg"></div></div><div class="card" id="cdet" style="margin-top:14px"></div></section>
 <section id="v-est" hidden><div class="vt">Estadísticas</div><div class="sts" id="est"></div><p class="foot" style="margin-top:14px">Cada número es un pasito que diste 💜</p></section>
-<section id="v-set" hidden><div class="vt">Ajustes</div><div class="card" id="vis" style="margin-bottom:14px"></div><div class="card" id="av" style="margin-bottom:14px"></div><div class="card" id="alm" style="margin-bottom:14px"></div><div class="card" style="margin-bottom:14px"><h2>Mi cuenta</h2><p class="meta" id="acc"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="lo">Cerrar sesión</button><button class="soft" id="ct">Cambiar estilo</button></div></div><div class="card"><h2>Avisos</h2><p class="meta">Los recordatorios suenan mientras tengas la app abierta.</p><button id="nf">Activar avisos del celular</button></div>
+<section id="v-set" hidden><div class="vt">Ajustes</div><div class="card" id="vis" style="margin-bottom:14px"></div><div class="card" id="av" style="margin-bottom:14px"></div><div class="card" id="alm" style="margin-bottom:14px"></div><div class="card" id="mus" style="margin-bottom:14px"></div><div class="card" style="margin-bottom:14px"><h2>Mi cuenta</h2><p class="meta" id="acc"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="lo">Cerrar sesión</button><button class="soft" id="ct">Cambiar estilo</button></div></div><div class="card"><h2>Avisos</h2><p class="meta">Los recordatorios suenan mientras tengas la app abierta.</p><button id="nf">Activar avisos del celular</button></div>
   <div class="card" style="margin-top:14px"><h2>Mis datos</h2><p class="meta">Tus datos se guardan en tu cuenta, así los ves desde cualquier dispositivo.</p><button class="soft" id="rz">Borrar todos mis datos</button></div></section>
 </main>
 <nav id="nav" hidden><button class="nv on" data-v="home"><span>🏠</span>Inicio</button><button class="nv" data-v="cal"><span>🗓️</span>Calendario</button><button id="fab" aria-label="Nueva tarea">＋</button><button class="nv" data-v="est"><span>📊</span>Estadísticas</button><button class="nv" data-v="set"><span>⚙️</span>Ajustes</button></nav>
@@ -267,7 +273,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 var now=new Date(),today=iso(now),NM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
 var days=[];for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push({k:iso(d),n:d.getDate(),w:NM[d.getDay()]})}
-load();S.rut=S.rut||[];S.rdone=S.rdone||{};S.alm=S.alm||{vib:2,snd:0,dur:40};S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
+load();S.rut=S.rut||[];S.rdone=S.rdone||{};S.alm=S.alm||{vib:2,snd:0,dur:40};S.mus=S.mus||[];S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
 S.tasks.forEach(function(t){if(!t.done&&t.d<today){t.d=today;t.c=1}});
 sel=today;if(days.every(function(x){return x.k!==today}))sel=days[0].k;
 save();
@@ -289,7 +295,7 @@ function render(){
   if(all.length&&all.every(function(t){return t.done}))h+='<div class="note">Listo por hoy. Descansa, te lo ganaste 💜</div>';
   if(!shown.length)h+='<div class="empty">Nada para este día. Agrega una cosita pequeña.</div>';
   shown.forEach(function(t){
-    var m=[t.kind];if(t.lim)m.push(t.lim);if(t.r)m.push((t.al?'⏰ ':'aviso ')+t.r);if(t.c)m.push('pasó de antes');
+    var m=[t.kind];if(t.lim)m.push(t.lim);if(t.r)m.push((alOf(t)?'⏰ ':'aviso ')+t.r);if(t.c)m.push('pasó de antes');
     h+='<div class="task'+(t.done?' done':'')+(t.id===POP?' pop':'')+'"><button class="chk" data-a="c" data-i="'+t.id+'" aria-label="Marcar hecha">'+(t.done?'✓':'')+'</button><div><div class="tt">'+esc(t.t)+'</div><div class="meta">'+esc(m.join(' · '))+'</div></div><div class="acts">'+(t.done?'':'<button class="ghost" data-a="m" data-i="'+t.id+'">Pasar a mañana</button>')+'<button class="ghost" data-a="x" data-i="'+t.id+'" aria-label="Borrar">Borrar</button></div></div>'});
   $('list').innerHTML=h;renderHoy();extra();
 }
@@ -306,23 +312,59 @@ $('hv').onclick=function(){S.heavy[sel]=!S.heavy[sel];save();render()};
 $('ad').onclick=function(){
   var v=$('nt').value.trim();if(!v){$('warn').innerHTML='<div class="note">Escribe qué quieres hacer.</div>';return}
   if(dayTasks(sel).length>=3&&!warned){warned=true;$('warn').innerHTML='<div class="note">Este día ya tiene 3 tareas. Quizás es mejor ponerla en otro día. Toca otra vez para agregarla igual.</div>';$('ad').textContent='Agregar igual';return}
-  S.tasks.push({id:Date.now(),t:v,d:sel,lim:$('nl').value,kind:$('nk').value,r:$('nr').value,al:$('na').value,done:false});
+  S.tasks.push({id:Date.now(),t:v,d:sel,lim:$('nl').value,kind:$('nk').value,r:$('nr').value,a:$('na').value,done:false});
   $('nt').value='';$('nr').value='';$('na').value='';warned=false;$('warn').innerHTML='';$('ad').textContent='Agregar';save();render()};
 $('nf').onclick=function(){try{Notification.requestPermission().then(function(p){$('nf').textContent=p==='granted'?'Avisos activados':'No se pudieron activar'})}catch(e){$('nf').textContent='Este navegador no permite avisos'}};
-var bt,SN=[{t:'square',f:[880,660],g:.15,l:.35},{t:'sine',f:[1047,1319],g:.3,l:.7},{t:'triangle',f:[523,659,784,659],g:.3,l:.6}],VB={1:[200,100,200],2:[400,150,400],3:[800,200,800,200,800]};
-function beep(on,max){clearInterval(bt);if(!on)return;var c=SN[S.alm.snd]||SN[0],lim=(max||S.alm.dur||40)*1.25,n=0,ac;try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+var bt,AU,AT,vt,SN=[{t:'square',f:[880,660],g:.15,l:.35},{t:'sine',f:[1047,1319],g:.3,l:.7},{t:'triangle',f:[523,659,784,659],g:.3,l:.6}],VB={1:[200,100,200],2:[400,150,400],3:[800,200,800,200,800]};
+function stopAll(){clearInterval(bt);clearInterval(vt);clearTimeout(AT);if(AU){try{AU.pause()}catch(e){}AU=null}try{if(navigator.vibrate)navigator.vibrate(0)}catch(e){}}
+function beep(on,max,kind){stopAll();if(!on)return;var c=kind==='p'?SN[0]:kind==='c'?SN[1]:kind==='m'?SN[2]:(SN[S.alm.snd]||SN[0]),lim=(max||S.alm.dur||40)*1.25,n=0,ac;try{ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.resume)ac.resume()}catch(e){return}
   function tick(){if(++n>lim){clearInterval(bt);return}try{var o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type=c.t;o.frequency.value=c.f[n%c.f.length];g.gain.setValueAtTime(c.g,t);g.gain.exponentialRampToValueAtTime(.001,t+c.l);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+c.l);if(navigator.vibrate)navigator.vibrate(VB[S.alm.vib]||VB[2])}catch(e){}}
   tick();bt=setInterval(tick,800)}
+var IDB;function idb(){return IDB||(IDB=new Promise(function(res,rej){var q=indexedDB.open('misemana-snd',1);q.onupgradeneeded=function(){q.result.createObjectStore('m')};q.onsuccess=function(){res(q.result)};q.onerror=function(){rej(q.error)}}))}
+function mTx(mode,fn){return idb().then(function(db){return new Promise(function(res,rej){var t=db.transaction('m',mode),r=fn(t.objectStore('m'));t.oncomplete=function(){res(r&&r.result)};t.onerror=function(){rej(t.error)}})})}
+function mPut(id,b){return mTx('readwrite',function(o){return o.put(b,id)})}
+function mGet(id){return mTx('readonly',function(o){return o.get(id)})}
+function mDel(id){return mTx('readwrite',function(o){return o.delete(id)})}
+function mPlay(id,max){return mGet(id).then(function(b){if(!b)throw new Error('nomus');AU=new Audio(URL.createObjectURL(b));AU.loop=true;var p=AU.play();AT=setTimeout(stopAll,(max||S.alm.dur||40)*1000);vt=setInterval(function(){try{if(navigator.vibrate)navigator.vibrate(VB[S.alm.vib]||VB[2])}catch(e){}},1500);return p})}
+function ringStart(a,max){stopAll();if(/^u:/.test(a||''))return mPlay(a.slice(2),max).catch(function(){beep(true,max)});beep(true,max,a);return Promise.resolve()}
+function ringUI(o){stopAll();var el=$('ring');if(!el){el=document.createElement('div');el.id='ring';document.body.appendChild(el)}
+  var ti=String(o.titulo).replace(/^⏰\s*/,'');
+  el.innerHTML='<div class="rg"><div class="bell">⏰</div><h2>'+esc(ti)+'</h2><p>'+esc(o.cuerpo)+'</p><button id="rgs">🔊 Sonar</button><button class="soft" id="rgz">Posponer 10 min</button><button class="ghost" id="rgx">Detener</button></div>';el.hidden=false;
+  ringStart(o.a);$('rgs').onclick=function(){ringStart(o.a)};$('rgx').onclick=function(){stopAll();el.hidden=true};
+  $('rgz').onclick=function(){stopAll();el.hidden=true;var A=window.AV;if(A&&A.on())A.snooze(ti,o.cuerpo,o.id).catch(function(){});else setTimeout(function(){ringUI(o)},600000)}}
+function openAlarm(id){var b=id.replace(/^(z\d+_)+/,''),m=/^([trs])([\d.]+)_/.exec(b),o={titulo:'⏰ Alarma',cuerpo:'Es hora ✨',a:'g',id:id};
+  try{if(m&&m[1]==='t'){var t=S.tasks.filter(function(x){return String(x.id)===m[2]})[0];if(t){o.cuerpo=t.t;o.a=alOf(t)||'g'}}
+  else if(m){var p=m[2].split('.'),r=S.rut.filter(function(x){return String(x.id)===p[0]})[0];if(r){o.titulo=(r.e||'🌷')+' '+r.n;o.a=alOf(r)||'g';o.cuerpo='Es hora de tu rutina ✨';if(m[1]==='s'){var st=r.steps.filter(function(x){return String(x.id)===p[1]})[0];if(st){o.cuerpo=st.t;o.a=alOf(st)||alOf(r)||'g'}}}}}catch(e){}
+  ringUI(o)}
+function sndOpts(){var o=[['','🔔 Aviso normal'],['p','⏰ Alarma: pitido'],['c','⏰ Alarma: campana'],['m','⏰ Alarma: melodía']];S.mus.forEach(function(m){o.push(['u:'+m.id,'🎵 '+m.name])});return o}
+function selHTML(v){return sndOpts().map(function(x){return '<option value="'+qa(x[0])+'"'+(x[0]===v?' selected':'')+'>'+qa(x[1])+'</option>'}).join('')}
+function fillSels(){['na','ra'].forEach(function(id){var e=$(id),v=e.value;e.innerHTML=selHTML(v)});renderRS()}
+var RS=[];
+function newStep(){return{id:Date.now()+Math.floor(Math.random()*1000),t:'',h:'',a:''}}
+function renderRS(){var h='';RS.forEach(function(s,i){h+='<div class="srow"><input data-i="'+i+'" data-f="t" placeholder="Paso '+(i+1)+'" maxlength="80" value="'+qa(s.t)+'"><div class="sl"><input type="time" data-i="'+i+'" data-f="h" value="'+qa(s.h||'')+'"><select data-i="'+i+'" data-f="a">'+selHTML(s.a||'')+'</select><button type="button" class="ghost" data-sx="'+i+'" aria-label="Quitar paso">✕</button></div></div>'});$('rsl').innerHTML=h}
+$('rsl').oninput=$('rsl').onchange=function(e){var t=e.target,i=t.dataset.i;if(i==null||!RS[i])return;RS[i][t.dataset.f]=t.value};
+$('rsl').onclick=function(e){var b=e.target.closest('button');if(!b||b.dataset.sx==null)return;RS.splice(+b.dataset.sx,1);if(!RS.length)RS.push(newStep());renderRS()};
+$('rsa').onclick=function(){RS.push(newStep());renderRS();var e=$('rsl').querySelectorAll('input[data-f="t"]');if(e.length)e[e.length-1].focus()};
+function renderMus(){var h='<h2>Mi música 🎵</h2><p class="meta">Elige canciones de tu celular para usarlas como alarma. Suenan cuando abres la app o tocas el aviso. Se guardan solo en este celular.</p>';
+  S.mus.forEach(function(m){h+='<div class="srow" style="grid-template-columns:1fr auto auto;align-items:center"><span class="tt">🎵 '+qa(m.name)+'</span><button class="soft" data-mp="'+m.id+'">▶</button><button class="ghost" data-mx="'+m.id+'">🗑</button></div>'});
+  h+=(S.mus.length<6?'<button data-madd="1">＋ Agregar canción</button><input type="file" id="mf" accept="audio/*" hidden>':'<p class="meta">Máximo 6 canciones.</p>')+'<div id="mm"></div>';$('mus').innerHTML=h}
+$('mus').onclick=function(e){var b=e.target.closest('button');if(!b)return;var d=b.dataset;
+  if(d.madd){$('mf').click();return}
+  if(d.mp){ringStart('u:'+d.mp,6);return}
+  if(d.mx)mDel(d.mx).then(function(){S.mus=S.mus.filter(function(m){return m.id!==d.mx});save();renderMus();fillSels()})};
+$('mus').onchange=function(e){var f=e.target.files&&e.target.files[0];if(!f||e.target.id!=='mf')return;var m=$('mm');
+  if(f.size>8*1048576){m.innerHTML='<div class="note">Esa canción pesa más de 8 MB. Elige una más corta.</div>';return}
+  var id='u'+Date.now();mPut(id,f).then(function(){S.mus.push({id:id,name:f.name.replace(/\.[^.]+$/,'').replace(/["'<>&]/g,'').slice(0,30)||'Canción'});save();renderMus();fillSels();$('mm').innerHTML='<div class="note">¡Lista! Ya puedes elegirla en tus alarmas 🎵</div>'}).catch(function(){m.innerHTML='<div class="note">No se pudo guardar la canción.</div>'})};
 function renderAlm(){var a=S.alm,h='<h2>Mi alarma ⏰</h2>';
   function row(l,k,o){return '<div><label>'+l+'</label><div class="row" style="grid-template-columns:repeat('+o.length+',1fr)">'+o.map(function(x){return '<button class="soft sw'+(a[k]===x[0]?' on':'')+'" data-ak="'+k+'" data-ao="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div></div>'}
   h+=row('📳 Vibración','vib',[[1,'Suave'],[2,'Normal'],[3,'Fuerte']])+row('🔊 Sonido (con la app abierta)','snd',[[0,'Pitido'],[1,'Campana'],[2,'Melodía']])+row('⏱️ Dura (con la app abierta)','dur',[[20,'20 s'],[40,'40 s'],[60,'1 min']]);
   h+='<button data-ap="1">▶ Probar sonido y vibración</button><p class="meta" style="margin:6px 0 0">Con la app cerrada el sonido es el de notificaciones de tu celular; puedes cambiarlo en los ajustes de notificaciones del celular.</p>';
   $('alm').innerHTML=h}
 $('alm').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.ap){beep(true,3);return}var k=b.dataset.ak;if(!k)return;S.alm[k]=+b.dataset.ao;save();renderAlm()};
-function ban(t){beep(!!t.al);$('ban').innerHTML='<div class="banner"><span>Recordatorio: <b>'+esc(t.t)+'</b>. Sin prisa, cuando puedas.</span><button class="soft" id="bx">Ok</button></div>';$('bx').onclick=function(){$('ban').innerHTML='';beep(false)};
+function ban(t){if(t.a){ringUI({titulo:'⏰ Alarma',cuerpo:t.t,a:t.a,id:t.id});return}stopAll();$('ban').innerHTML='<div class="banner"><span>Recordatorio: <b>'+esc(t.t)+'</b>. Sin prisa, cuando puedas.</span><button class="soft" id="bx">Ok</button></div>';$('bx').onclick=function(){$('ban').innerHTML='';beep(false)};
   try{if(navigator.vibrate)navigator.vibrate(200);if(Notification.permission==='granted')new Notification('Recordatorio',{body:t.t})}catch(e){}}
 setInterval(function(){var d=new Date(),hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2),k=iso(d);
-  S.tasks.forEach(function(t){if(!t.done&&t.r&&t.d===k&&t.r<=hm&&t.n!==k){t.n=k;save();ban(t)}})},15000);
+  S.tasks.forEach(function(t){if(!t.done&&t.r&&t.d===k&&t.r<=hm&&t.n!==k){t.n=k;save();ban({t:t.t,a:alOf(t),id:'t'+t.id+'_x'})}});checkRut(d,hm,k)},15000);
 var F=[{k:1,e:'🥺',l:'Mal',d:'Hoy necesito descansar.'},{k:2,e:'😌',l:'Regular',d:'Voy poco a poco.'},{k:3,e:'😊',l:'Mejor',d:'Estoy avanzando.'},{k:4,e:'🥰',l:'Con ánimo',d:'¡Hoy puedo con todo!'}];
 var T={1:['Hoy puede ser un día de lo mínimo: tomar agua, comer algo y una sola tarea chiquita. Sentirte mal hoy no borra lo que has avanzado.','Hoy toca ir suave. Respira lento tres veces y haz solo lo primero de tu lista.'],
 2:['Un día regular también es un día. Prueba con una tarea de 2 minutos y mira cómo te sientes después.','Ni bien ni mal: así también se avanza. Toma agua y estírate un ratito si puedes.'],
@@ -364,20 +406,19 @@ function chips(){$('rdy').innerHTML=DL.map(function(x){return '<button type="but
 function rList(){var h='';if(!S.rut.length)h='<div class="empty">Aún no tienes rutinas. Crea la primera aquí abajo.</div>';
   S.rut.forEach(function(r){h+='<div class="card" style="margin-bottom:12px"><h2>'+esc(r.e)+' '+esc(r.n)+'</h2><p class="meta" style="margin:0">'+DL.filter(function(x){return r.days.indexOf(x[0])>-1}).map(function(x){return NM[x[0]]}).join(', ')+' · '+r.steps.length+(r.steps.length===1?' paso':' pasos')+'</p><div style="display:flex;gap:8px"><button class="soft" data-re="'+r.id+'">Editar</button><button class="ghost" data-rx="'+r.id+'">Borrar</button></div></div>'});
   $('rlist').innerHTML=h}
-function rReset(){RE=null;RD=[];$('rn').value='';$('re').value='';$('rst').value='';$('rh').value='';$('ra').value='';$('rft').textContent='Nueva rutina 🌸';$('rcn').hidden=true;chips()}
+function rReset(){RE=null;RD=[];RS=[newStep()];$('rn').value='';$('re').value='';$('rh').value='';$('ra').value='';$('rft').textContent='Nueva rutina 🌸';$('rcn').hidden=true;chips();renderRS()}
 $('rdy').onclick=function(e){var b=e.target.closest('button');if(!b)return;var d=+b.dataset.d,i=RD.indexOf(d);if(i>-1)RD.splice(i,1);else RD.push(d);chips()};
 $('rdall').onclick=function(){RD=[1,2,3,4,5,6,0];chips()};
-$('rsv').onclick=function(){var n=$('rn').value.trim(),ls=$('rst').value.split('\n').map(function(x){return x.trim()}).filter(Boolean),m=$('rmsg');
+$('rsv').onclick=function(){var n=$('rn').value.trim(),m=$('rmsg'),st=RS.filter(function(x){return x.t.trim()}).map(function(x){return{id:x.id,t:x.t.trim(),h:x.h||'',a:x.a||''}});
   function er(t){m.innerHTML='<div class="note">'+t+'</div>'}
-  if(!n)return er('Ponle un nombre a tu rutina.');if(!RD.length)return er('Elige al menos un día.');if(!ls.length)return er('Escribe al menos un paso.');
-  var old=RE?S.rut.filter(function(x){return x.id===RE})[0]:null,pv={};if(old)old.steps.forEach(function(s){pv[s.t]=s.id});
-  var st=ls.map(function(t,i){var id=pv[t]||Date.now()+i;delete pv[t];return{id:id,t:t}});
-  var o={id:old?old.id:Date.now(),n:n,e:$('re').value.trim()||'🌷',days:RD.slice(),h:$('rh').value,al:$('ra').value,steps:st};
+  if(!n)return er('Ponle un nombre a tu rutina.');if(!RD.length)return er('Elige al menos un día.');if(!st.length)return er('Escribe al menos un paso.');
+  var old=RE?S.rut.filter(function(x){return x.id===RE})[0]:null;
+  var o={id:old?old.id:Date.now(),n:n,e:$('re').value.trim()||'🌷',days:RD.slice(),h:$('rh').value,a:$('ra').value,steps:st};
   if(old)S.rut[S.rut.indexOf(old)]=o;else S.rut.push(o);
   save();rReset();m.innerHTML='<div class="note">¡Rutina guardada! 💜</div>';rList();renderRut();renderHoy()};
 $('rcn').onclick=function(){rReset();$('rmsg').innerHTML=''};
 $('rlist').onclick=function(e){var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.re){var r=S.rut.filter(function(x){return String(x.id)===b.dataset.re})[0];if(!r)return;RE=r.id;RD=r.days.slice();$('rn').value=r.n;$('re').value=r.e;$('rst').value=r.steps.map(function(s){return s.t}).join('\n');$('rh').value=r.h||'';$('ra').value=r.al||'';$('rft').textContent='Editar rutina ✏️';$('rcn').hidden=false;chips();$('rn').scrollIntoView({behavior:'smooth',block:'center'})}
+  if(b.dataset.re){var r=S.rut.filter(function(x){return String(x.id)===b.dataset.re})[0];if(!r)return;RE=r.id;RD=r.days.slice();$('rn').value=r.n;$('re').value=r.e;RS=r.steps.map(function(x){return{id:x.id,t:x.t,h:x.h||'',a:x.a||''}});renderRS();$('rh').value=r.h||'';$('ra').value=r.a||(r.al?'g':'');$('rft').textContent='Editar rutina ✏️';$('rcn').hidden=false;chips();$('rn').scrollIntoView({behavior:'smooth',block:'center'})}
   if(b.dataset.rx){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Toca otra vez para borrar';return}
     S.rut=S.rut.filter(function(x){return String(x.id)!==b.dataset.rx});save();rList();renderRut();renderHoy()}};
 $('rg').onclick=function(){show('rut')};$('rbk').onclick=function(){show('home')};
@@ -400,10 +441,20 @@ function rotSet(){clearInterval(rotT);if(V.col.mode==='auto'&&V.col.rot)rotT=set
   setHero(chi);applyPal(LP[pi]);rotSet()})();
 var hid=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hid=Date.now();return}if(hid&&Date.now()-hid>30000){chi=rnd(6,chi);setHero(chi);try{localStorage.setItem('miSemanaLastC',chi)}catch(e){}}hid=0});
 var syncT;
-function remList(){var out=[],n=Date.now(),lim=n+14*864e5;
-  S.tasks.forEach(function(t){if(t.done||!t.r||!t.d)return;var w=new Date(t.d+'T'+t.r+':00').getTime();if(isNaN(w)||w<n-60000||w>lim)return;out.push({id:'t'+t.id+'_'+t.d+'_'+t.r+(t.al?'a'+S.alm.vib:''),fire_at:new Date(w).toISOString(),titulo:(t.al?'⏰ ':'')+'Recordatorio 🌸',cuerpo:t.t})});
-  for(var i=0;i<8;i++){var d=new Date();d.setDate(d.getDate()+i);var k=iso(d);S.rut.forEach(function(r){if(!r.h||r.days.indexOf(d.getDay())<0||rutFull(r,k))return;var w=new Date(k+'T'+r.h+':00').getTime();if(isNaN(w)||w<n-60000)return;out.push({id:'r'+r.id+'_'+k+'_'+r.h+(r.al?'a'+S.alm.vib:''),fire_at:new Date(w).toISOString(),titulo:(r.al?'⏰ ':'')+(r.e||'🌷')+' '+r.n,cuerpo:'Es hora de tu rutina ✨'})})}
+function alOf(x){return x.a||(x.al?'g':'')}
+function qa(x){return String(x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function remList(){var out=[],n=Date.now(),lim=n+14*864e5,ac=function(x){return alOf(x)?'a'+S.alm.vib:''},pr=function(x){return alOf(x)?'⏰ ':''};
+  S.tasks.forEach(function(t){if(t.done||!t.r||!t.d)return;var w=new Date(t.d+'T'+t.r+':00').getTime();if(isNaN(w)||w<n-60000||w>lim)return;out.push({id:'t'+t.id+'_'+t.d+'_'+t.r+ac(t),fire_at:new Date(w).toISOString(),titulo:pr(t)+'Recordatorio 🌸',cuerpo:t.t})});
+  for(var i=0;i<8;i++){var d=new Date();d.setDate(d.getDate()+i);var k=iso(d);S.rut.forEach(function(r){if(r.days.indexOf(d.getDay())<0)return;var dn=S.rdone[k]||{},w;
+    if(r.h&&!rutFull(r,k)){w=new Date(k+'T'+r.h+':00').getTime();if(!isNaN(w)&&w>=n-60000)out.push({id:'r'+r.id+'_'+k+'_'+r.h+ac(r),fire_at:new Date(w).toISOString(),titulo:pr(r)+(r.e||'🌷')+' '+r.n,cuerpo:'Es hora de tu rutina ✨'})}
+    r.steps.forEach(function(s){if(!s.h||dn[s.id])return;var w2=new Date(k+'T'+s.h+':00').getTime();if(isNaN(w2)||w2<n-60000)return;out.push({id:'s'+r.id+'.'+s.id+'_'+k+'_'+s.h+ac(s),fire_at:new Date(w2).toISOString(),titulo:pr(s)+(r.e||'🌷')+' '+r.n,cuerpo:s.t})})})}
   return out}
+function tm(h){var p=h.split(':');return +p[0]*60+ +p[1]}
+function checkRut(d,hm,k){var mm=d.getHours()*60+d.getMinutes(),ks=S.rnot=S.rnot||{};if(Object.keys(ks).length>200)ks=S.rnot={};var dn=S.rdone[k]||{};
+  S.rut.forEach(function(r){if(r.days.indexOf(d.getDay())<0)return;var L=[];
+    if(r.h&&!rutFull(r,k))L.push({h:r.h,a:alOf(r),t:(r.e||'🌷')+' '+r.n,key:'r'+r.id,id:'r'+r.id+'_x'});
+    r.steps.forEach(function(s){if(s.h&&!dn[s.id])L.push({h:s.h,a:alOf(s),t:s.t,key:'s'+s.id,id:'s'+r.id+'.'+s.id+'_x'})});
+    L.forEach(function(x){var q=tm(x.h),kk=x.key+'|'+k+'|'+x.h;if(q>mm||mm-q>10||ks[kk])return;ks[kk]=1;save();ban({t:x.t,a:x.a,id:x.id})})})}
 function avSync(){clearTimeout(syncT);syncT=setTimeout(function(){var A=window.AV;if(A&&A.ok()&&A.on())A.sync(remList()).catch(function(){})},2500)}
 function renderAv(){var A=window.AV,h='<h2>Avisos y alarmas 🔔</h2>';
   if(!A||!A.ok())h+='<p class="meta">Este navegador no permite avisos.</p>';
@@ -482,7 +533,7 @@ function renderEst(){
   function c(e,n,l){return '<div class="st"><span>'+e+'</span><b>'+n+'</b><small>'+l+'</small></div>'}
   $('est').innerHTML=c('✅',all,'tareas hechas')+c('⭐',ex,'pequeñas victorias extra')+c('🌷',rc,'rutinas completas')+c('🌙',rest,'días de descanso')+c('👟',avg||'—','pasos en promedio')+F.map(function(f,i){return c(f.e,ml[i],'días: '+f.l)}).join('');
 }
-function show(v){view=v;['home','cal','est','set','rut'].forEach(function(n){$('v-'+n).hidden=(n!==v)});var bs=document.querySelectorAll('.nv');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);if(v==='cal')renderCal();if(v==='est')renderEst();if(v==='rut'){rList();chips()}if(v==='set'){renderVis();renderAv();renderAlm()}window.scrollTo(0,0)}
+function show(v){view=v;['home','cal','est','set','rut'].forEach(function(n){$('v-'+n).hidden=(n!==v)});var bs=document.querySelectorAll('.nv');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);if(v==='cal')renderCal();if(v==='est')renderEst();if(v==='rut'){rList();chips();if(!RS.length)RS=[newStep()];renderRS()}if(v==='set'){renderVis();renderAv();renderAlm();renderMus()}window.scrollTo(0,0)}
 $('nav').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.v)show(b.dataset.v);if(b.id==='fab'){show('home');$('nt').closest('.fold').classList.remove('closed');$('nt').scrollIntoView({behavior:'smooth',block:'center'});$('nt').focus()}};
 $('cg').onclick=function(e){var b=e.target.closest('button');if(b&&b.dataset.c){cs=b.dataset.c;renderCal()}};
 $('rz').onclick=function(){if(!rz2){rz2=true;this.textContent='Toca otra vez para borrar todo';return}CTX.wipe(function(){location.reload()})};
@@ -490,7 +541,8 @@ document.addEventListener('click',function(e){var b=e.target.closest('button');i
 document.addEventListener('click',function(e){var h=e.target.closest('.hd');if(h&&h.parentNode.classList.contains('fold'))h.parentNode.classList.toggle('closed')});
 var cards=document.querySelectorAll('#v-home .card,.weekrow'),ci;for(ci=0;ci<cards.length;ci++)cards[ci].classList.add('rv');
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{threshold:.08});for(ci=0;ci<cards.length;ci++)io.observe(cards[ci])}else{for(ci=0;ci<cards.length;ci++)cards[ci].classList.add('in')}
-renderDia();render();renderRut();avSync();
+renderDia();render();renderRut();fillSels();avSync();
+(function(){var m=/[?&]alarma=([^&]+)/.exec(location.search);if(!m)return;try{history.replaceState(null,'',location.pathname)}catch(e){}openAlarm(decodeURIComponent(m[1]))})();
 };
 </script>
 <script>
@@ -528,8 +580,9 @@ window.AV={
  on:function(){try{return localStorage.getItem('miSemanaAv')==='1'&&Notification.permission==='granted'}catch(e){return false}},
  activar:function(){return Notification.requestPermission().then(function(p){if(p!=='granted')throw new Error('perm');return navigator.serviceWorker.register('/push-sw.js',{scope:'/avisos/'})}).then(listo).then(function(reg){return reg.pushManager.getSubscription().then(function(s){return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID)})})}).then(function(sub){var j=sub.toJSON();return sb.from('push_subs').upsert({endpoint:j.endpoint,user_id:uid,p256dh:j.keys.p256dh,auth:j.keys.auth}).then(function(x){if(x.error)throw x.error;try{localStorage.setItem('miSemanaAv','1')}catch(e){}})})},
  desactivar:function(){return navigator.serviceWorker.getRegistration('/avisos/').then(function(reg){return reg?reg.pushManager.getSubscription():null}).then(function(s){var ep=s&&s.endpoint;return Promise.resolve(s&&s.unsubscribe()).then(function(){return ep?sb.from('push_subs').delete().eq('endpoint',ep):null})}).then(function(){try{localStorage.removeItem('miSemanaAv')}catch(e){}})},
- sync:function(list){if(!uid)return Promise.resolve();var ids=list.map(function(x){return '"'+x.id+'"'}),q=sb.from('recordatorios').delete().eq('user_id',uid).eq('enviado',false);if(ids.length)q=q.not('id','in','('+ids.join(',')+')');
+ sync:function(list){if(!uid)return Promise.resolve();var ids=list.map(function(x){return '"'+x.id+'"'}),q=sb.from('recordatorios').delete().eq('user_id',uid).eq('enviado',false).not('id','like','z*');if(ids.length)q=q.not('id','in','('+ids.join(',')+')');
   return q.then(function(x){if(x.error)throw x.error;if(!list.length)return;return sb.from('recordatorios').upsert(list.map(function(r){return{id:r.id,user_id:uid,fire_at:r.fire_at,titulo:r.titulo,cuerpo:r.cuerpo}}),{onConflict:'user_id,id',ignoreDuplicates:true}).then(function(y){if(y.error)throw y.error})})},
+ snooze:function(ti,cu,id){return sb.from('recordatorios').insert({id:'z'+Date.now()+'_'+(id||'x'),user_id:uid,fire_at:new Date(Date.now()+600000).toISOString(),titulo:'⏰ '+ti,cuerpo:cu}).then(function(x){if(x.error)throw x.error})},
  test:function(al){return sb.from('recordatorios').insert({id:'prueba_'+Date.now(),user_id:uid,fire_at:new Date().toISOString(),titulo:(al?'⏰ ':'')+'Prueba 🌸',cuerpo:'Si lees esto, los avisos funcionan 💜'}).then(function(x){if(x.error)throw x.error})},
  err:function(e){var t=(e&&e.message)||String(e);if(t==='perm')return 'Necesitas permitir las notificaciones para activarlos.';if(/relation|schema cache|does not exist|permission denied/i.test(t+' '+((e&&e.code)||'')))return 'Falta preparar Supabase (paso 1 del archivo SQL).';return 'No se pudo: '+t}};
 
@@ -548,7 +601,7 @@ function enter(u){if(started)return;started=true;uid=u.id;ck='miSemana1_'+uid;$(
   $('auth').hidden=true;$('app').hidden=false;$('nav').hidden=false;$('acc').textContent=u.email||'';
   if(/access_token|type=|error/.test(location.hash))history.replaceState(null,'',BASE+location.search);
   window.startMiSemana({data:d,save:function(S){wc({ts:Date.now(),dirty:true,data:S});sched()},
-   wipe:function(cb){wc({ts:Date.now(),dirty:true,data:{tasks:[],heavy:{},tema:cur.tema,vis:cur.vis,alm:cur.alm}});push().then(function(){var c=rc();if(c&&c.dirty){alert('Sin conexión: no se pudo borrar. Inténtalo con internet.');return}try{localStorage.removeItem(ck)}catch(e){}cb()})}});
+   wipe:function(cb){wc({ts:Date.now(),dirty:true,data:{tasks:[],heavy:{},tema:cur.tema,vis:cur.vis,alm:cur.alm,mus:cur.mus}});push().then(function(){var c=rc();if(c&&c.dirty){alert('Sin conexión: no se pudo borrar. Inténtalo con internet.');return}try{localStorage.removeItem(ck)}catch(e){}cb()})}});
   try{localStorage.removeItem('miSemana1')}catch(e){}
  },function(){started=false;$('aload').innerHTML='No pude cargar tus datos. Revisa tu conexión.<br><button id="ar" type="button" style="margin-top:10px">Reintentar</button>';$('ar').onclick=function(){location.reload()}})}
 $('af').onsubmit=function(ev){ev.preventDefault();var e=$('ae').value.trim(),p=$('ap').value,p2=$('ap2').value,b=$('ago'),r;
