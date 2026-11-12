@@ -253,7 +253,7 @@ button:disabled{opacity:.45;cursor:default}
 <button id="rsv">Guardar rutina</button><button class="ghost" id="rcn" hidden>Cancelar edición</button></div></section>
 <section id="v-cal" hidden><div class="vt">Calendario</div><div class="card"><h2 id="cm"></h2><div class="cg" id="cg"></div></div><div class="card" id="cdet" style="margin-top:14px"></div></section>
 <section id="v-est" hidden><div class="vt">Estadísticas</div><div class="sts" id="est"></div><p class="foot" style="margin-top:14px">Cada número es un pasito que diste 💜</p></section>
-<section id="v-set" hidden><div class="vt">Ajustes</div><div class="card" id="vis" style="margin-bottom:14px"></div><div class="card" id="av" style="margin-bottom:14px"></div><div class="card" style="margin-bottom:14px"><h2>Mi cuenta</h2><p class="meta" id="acc"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="lo">Cerrar sesión</button><button class="soft" id="ct">Cambiar estilo</button></div></div><div class="card"><h2>Avisos</h2><p class="meta">Los recordatorios suenan mientras tengas la app abierta.</p><button id="nf">Activar avisos del celular</button></div>
+<section id="v-set" hidden><div class="vt">Ajustes</div><div class="card" id="vis" style="margin-bottom:14px"></div><div class="card" id="av" style="margin-bottom:14px"></div><div class="card" id="alm" style="margin-bottom:14px"></div><div class="card" style="margin-bottom:14px"><h2>Mi cuenta</h2><p class="meta" id="acc"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="lo">Cerrar sesión</button><button class="soft" id="ct">Cambiar estilo</button></div></div><div class="card"><h2>Avisos</h2><p class="meta">Los recordatorios suenan mientras tengas la app abierta.</p><button id="nf">Activar avisos del celular</button></div>
   <div class="card" style="margin-top:14px"><h2>Mis datos</h2><p class="meta">Tus datos se guardan en tu cuenta, así los ves desde cualquier dispositivo.</p><button class="soft" id="rz">Borrar todos mis datos</button></div></section>
 </main>
 <nav id="nav" hidden><button class="nv on" data-v="home"><span>🏠</span>Inicio</button><button class="nv" data-v="cal"><span>🗓️</span>Calendario</button><button id="fab" aria-label="Nueva tarea">＋</button><button class="nv" data-v="est"><span>📊</span>Estadísticas</button><button class="nv" data-v="set"><span>⚙️</span>Ajustes</button></nav>
@@ -267,7 +267,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 var now=new Date(),today=iso(now),NM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
 var days=[];for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push({k:iso(d),n:d.getDate(),w:NM[d.getDay()]})}
-load();S.rut=S.rut||[];S.rdone=S.rdone||{};S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
+load();S.rut=S.rut||[];S.rdone=S.rdone||{};S.alm=S.alm||{vib:2,snd:0,dur:40};S.mood=S.mood||{};S.log=S.log||{};S.rest=S.rest||{};S.steps=S.steps||{};
 S.tasks.forEach(function(t){if(!t.done&&t.d<today){t.d=today;t.c=1}});
 sel=today;if(days.every(function(x){return x.k!==today}))sel=days[0].k;
 save();
@@ -309,8 +309,16 @@ $('ad').onclick=function(){
   S.tasks.push({id:Date.now(),t:v,d:sel,lim:$('nl').value,kind:$('nk').value,r:$('nr').value,al:$('na').value,done:false});
   $('nt').value='';$('nr').value='';$('na').value='';warned=false;$('warn').innerHTML='';$('ad').textContent='Agregar';save();render()};
 $('nf').onclick=function(){try{Notification.requestPermission().then(function(p){$('nf').textContent=p==='granted'?'Avisos activados':'No se pudieron activar'})}catch(e){$('nf').textContent='Este navegador no permite avisos'}};
-var bt;function beep(on){clearInterval(bt);if(!on)return;var n=0,ac;try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
-  bt=setInterval(function(){if(++n>40){clearInterval(bt);return}try{var o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=n%2?880:660;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.35);if(navigator.vibrate)navigator.vibrate([400,150,400])}catch(e){}},800)}
+var bt,SN=[{t:'square',f:[880,660],g:.15,l:.35},{t:'sine',f:[1047,1319],g:.3,l:.7},{t:'triangle',f:[523,659,784,659],g:.3,l:.6}],VB={1:[200,100,200],2:[400,150,400],3:[800,200,800,200,800]};
+function beep(on,max){clearInterval(bt);if(!on)return;var c=SN[S.alm.snd]||SN[0],lim=(max||S.alm.dur||40)*1.25,n=0,ac;try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+  function tick(){if(++n>lim){clearInterval(bt);return}try{var o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type=c.t;o.frequency.value=c.f[n%c.f.length];g.gain.setValueAtTime(c.g,t);g.gain.exponentialRampToValueAtTime(.001,t+c.l);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+c.l);if(navigator.vibrate)navigator.vibrate(VB[S.alm.vib]||VB[2])}catch(e){}}
+  tick();bt=setInterval(tick,800)}
+function renderAlm(){var a=S.alm,h='<h2>Mi alarma ⏰</h2>';
+  function row(l,k,o){return '<div><label>'+l+'</label><div class="row" style="grid-template-columns:repeat('+o.length+',1fr)">'+o.map(function(x){return '<button class="soft sw'+(a[k]===x[0]?' on':'')+'" data-ak="'+k+'" data-ao="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div></div>'}
+  h+=row('📳 Vibración','vib',[[1,'Suave'],[2,'Normal'],[3,'Fuerte']])+row('🔊 Sonido (con la app abierta)','snd',[[0,'Pitido'],[1,'Campana'],[2,'Melodía']])+row('⏱️ Dura (con la app abierta)','dur',[[20,'20 s'],[40,'40 s'],[60,'1 min']]);
+  h+='<button data-ap="1">▶ Probar sonido y vibración</button><p class="meta" style="margin:6px 0 0">Con la app cerrada el sonido es el de notificaciones de tu celular; puedes cambiarlo en los ajustes de notificaciones del celular.</p>';
+  $('alm').innerHTML=h}
+$('alm').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.ap){beep(true,3);return}var k=b.dataset.ak;if(!k)return;S.alm[k]=+b.dataset.ao;save();renderAlm()};
 function ban(t){beep(!!t.al);$('ban').innerHTML='<div class="banner"><span>Recordatorio: <b>'+esc(t.t)+'</b>. Sin prisa, cuando puedas.</span><button class="soft" id="bx">Ok</button></div>';$('bx').onclick=function(){$('ban').innerHTML='';beep(false)};
   try{if(navigator.vibrate)navigator.vibrate(200);if(Notification.permission==='granted')new Notification('Recordatorio',{body:t.t})}catch(e){}}
 setInterval(function(){var d=new Date(),hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2),k=iso(d);
@@ -393,8 +401,8 @@ function rotSet(){clearInterval(rotT);if(V.col.mode==='auto'&&V.col.rot)rotT=set
 var hid=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hid=Date.now();return}if(hid&&Date.now()-hid>30000){chi=rnd(6,chi);setHero(chi);try{localStorage.setItem('miSemanaLastC',chi)}catch(e){}}hid=0});
 var syncT;
 function remList(){var out=[],n=Date.now(),lim=n+14*864e5;
-  S.tasks.forEach(function(t){if(t.done||!t.r||!t.d)return;var w=new Date(t.d+'T'+t.r+':00').getTime();if(isNaN(w)||w<n-60000||w>lim)return;out.push({id:'t'+t.id+'_'+t.d+'_'+t.r+(t.al?'a':''),fire_at:new Date(w).toISOString(),titulo:(t.al?'⏰ ':'')+'Recordatorio 🌸',cuerpo:t.t})});
-  for(var i=0;i<8;i++){var d=new Date();d.setDate(d.getDate()+i);var k=iso(d);S.rut.forEach(function(r){if(!r.h||r.days.indexOf(d.getDay())<0||rutFull(r,k))return;var w=new Date(k+'T'+r.h+':00').getTime();if(isNaN(w)||w<n-60000)return;out.push({id:'r'+r.id+'_'+k+'_'+r.h+(r.al?'a':''),fire_at:new Date(w).toISOString(),titulo:(r.al?'⏰ ':'')+(r.e||'🌷')+' '+r.n,cuerpo:'Es hora de tu rutina ✨'})})}
+  S.tasks.forEach(function(t){if(t.done||!t.r||!t.d)return;var w=new Date(t.d+'T'+t.r+':00').getTime();if(isNaN(w)||w<n-60000||w>lim)return;out.push({id:'t'+t.id+'_'+t.d+'_'+t.r+(t.al?'a'+S.alm.vib:''),fire_at:new Date(w).toISOString(),titulo:(t.al?'⏰ ':'')+'Recordatorio 🌸',cuerpo:t.t})});
+  for(var i=0;i<8;i++){var d=new Date();d.setDate(d.getDate()+i);var k=iso(d);S.rut.forEach(function(r){if(!r.h||r.days.indexOf(d.getDay())<0||rutFull(r,k))return;var w=new Date(k+'T'+r.h+':00').getTime();if(isNaN(w)||w<n-60000)return;out.push({id:'r'+r.id+'_'+k+'_'+r.h+(r.al?'a'+S.alm.vib:''),fire_at:new Date(w).toISOString(),titulo:(r.al?'⏰ ':'')+(r.e||'🌷')+' '+r.n,cuerpo:'Es hora de tu rutina ✨'})})}
   return out}
 function avSync(){clearTimeout(syncT);syncT=setTimeout(function(){var A=window.AV;if(A&&A.ok()&&A.on())A.sync(remList()).catch(function(){})},2500)}
 function renderAv(){var A=window.AV,h='<h2>Avisos y alarmas 🔔</h2>';
@@ -474,7 +482,7 @@ function renderEst(){
   function c(e,n,l){return '<div class="st"><span>'+e+'</span><b>'+n+'</b><small>'+l+'</small></div>'}
   $('est').innerHTML=c('✅',all,'tareas hechas')+c('⭐',ex,'pequeñas victorias extra')+c('🌷',rc,'rutinas completas')+c('🌙',rest,'días de descanso')+c('👟',avg||'—','pasos en promedio')+F.map(function(f,i){return c(f.e,ml[i],'días: '+f.l)}).join('');
 }
-function show(v){view=v;['home','cal','est','set','rut'].forEach(function(n){$('v-'+n).hidden=(n!==v)});var bs=document.querySelectorAll('.nv');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);if(v==='cal')renderCal();if(v==='est')renderEst();if(v==='rut'){rList();chips()}if(v==='set'){renderVis();renderAv()}window.scrollTo(0,0)}
+function show(v){view=v;['home','cal','est','set','rut'].forEach(function(n){$('v-'+n).hidden=(n!==v)});var bs=document.querySelectorAll('.nv');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);if(v==='cal')renderCal();if(v==='est')renderEst();if(v==='rut'){rList();chips()}if(v==='set'){renderVis();renderAv();renderAlm()}window.scrollTo(0,0)}
 $('nav').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.v)show(b.dataset.v);if(b.id==='fab'){show('home');$('nt').closest('.fold').classList.remove('closed');$('nt').scrollIntoView({behavior:'smooth',block:'center'});$('nt').focus()}};
 $('cg').onclick=function(e){var b=e.target.closest('button');if(b&&b.dataset.c){cs=b.dataset.c;renderCal()}};
 $('rz').onclick=function(){if(!rz2){rz2=true;this.textContent='Toca otra vez para borrar todo';return}CTX.wipe(function(){location.reload()})};
@@ -540,7 +548,7 @@ function enter(u){if(started)return;started=true;uid=u.id;ck='miSemana1_'+uid;$(
   $('auth').hidden=true;$('app').hidden=false;$('nav').hidden=false;$('acc').textContent=u.email||'';
   if(/access_token|type=|error/.test(location.hash))history.replaceState(null,'',BASE+location.search);
   window.startMiSemana({data:d,save:function(S){wc({ts:Date.now(),dirty:true,data:S});sched()},
-   wipe:function(cb){wc({ts:Date.now(),dirty:true,data:{tasks:[],heavy:{},tema:cur.tema,vis:cur.vis}});push().then(function(){var c=rc();if(c&&c.dirty){alert('Sin conexión: no se pudo borrar. Inténtalo con internet.');return}try{localStorage.removeItem(ck)}catch(e){}cb()})}});
+   wipe:function(cb){wc({ts:Date.now(),dirty:true,data:{tasks:[],heavy:{},tema:cur.tema,vis:cur.vis,alm:cur.alm}});push().then(function(){var c=rc();if(c&&c.dirty){alert('Sin conexión: no se pudo borrar. Inténtalo con internet.');return}try{localStorage.removeItem(ck)}catch(e){}cb()})}});
   try{localStorage.removeItem('miSemana1')}catch(e){}
  },function(){started=false;$('aload').innerHTML='No pude cargar tus datos. Revisa tu conexión.<br><button id="ar" type="button" style="margin-top:10px">Reintentar</button>';$('ar').onclick=function(){location.reload()}})}
 $('af').onsubmit=function(ev){ev.preventDefault();var e=$('ae').value.trim(),p=$('ap').value,p2=$('ap2').value,b=$('ago'),r;
